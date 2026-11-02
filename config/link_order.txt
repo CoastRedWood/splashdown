@@ -1,0 +1,408 @@
+# Link order: every object of the executable, in the
+# order retail's linker took them. tools/relink.py generates the link script
+# from this list alone: each output section takes these objects' sections
+# of its kind in this order (text, then .data, .rodata, the static
+# initializers, .ctor, .vtables, .sdata, .sbss, .bss), and the linker keeps
+# the first copy of an inline function or inline-bound datum in this order.
+#   src/...      a translation unit (tools/link_c.py's object for it)
+#   sdk L/O      a Sony SDK / libgcc / newlib object: its code from
+#                asm/sdk/L/O.s, its data as tools/link_c.py cuts it
+#                (config/sdk_data.txt); some have data only
+# Derived once from the retail layout (the game code's TU order, the SDK
+# archives between asm/text.s and asm/text_late.s, the data-only objects
+# where their data sits); every kind's order agrees with this one list.
+sdk crt0/crt0
+src/tu/vu0Functions.cpp
+src/tu/MemoryPoolManager.cpp
+src/tu/Game.cpp
+src/tu/GameObject.cpp
+src/tu/SoundGroup.cpp
+src/tu/BaseObject.cpp
+src/tu/GR_BitString.cpp
+src/tu/BlockAllocator.cpp
+src/tu/BoundingBoxTree.cpp
+src/tu/BoundingBoxTreeBuild.cpp
+src/tu/Camera.cpp
+src/tu/CarProcedural.cpp
+src/tu/CollisionCharacter.cpp
+src/tu/CollisionObject.cpp
+src/tu/ControlInterface.cpp
+src/tu/Cube.cpp
+src/tu/Cubedraw.cpp
+src/tu/D3DIMSoultreeMotnctrl.cpp
+src/tu/Debug.cpp
+src/tu/DebugOverlay.cpp
+src/tu/DmaRenderItem.cpp
+src/tu/EcoSystem.cpp
+src/tu/Fog.cpp
+src/tu/DrawableGridNodeSharedTextures.cpp
+src/tu/GridNodeGeometry.cpp
+src/tu/Griddraw.cpp
+src/tu/GridNode.cpp
+src/tu/HiResMeter.cpp
+src/tu/ImageData.cpp
+src/tu/InputDevice.cpp
+src/tu/InputDeviceType.cpp
+src/tu/JetskiCircuitCompetition.cpp
+src/tu/JetskiCompetition.cpp
+src/tu/JetskiCopycatCompetition.cpp
+src/tu/JetskiEngineModel.cpp
+src/tu/JetskiGame.cpp
+src/tu/JetskiPlayerVehicle.cpp
+src/tu/JetskiTimeElimCompetition.cpp
+src/tu/JetskiTimeTrialCompetition.cpp
+src/tu/LensFlare.cpp
+src/tu/LightEmitter.cpp
+src/tu/Lzw.cpp
+src/tu/Math3d.cpp
+src/tu/MathQuaternion.cpp
+src/tu/Motnctrl.cpp
+src/tu/Mygame.cpp
+src/tu/NormalDistribution.cpp
+src/tu/Overlay.cpp
+src/tu/Parameterblocks.cpp
+src/tu/Particles.cpp
+src/tu/PeakInt.cpp
+src/tu/PhysicsBody.cpp
+src/tu/PhysicsRigidBody.cpp
+src/tu/PixTrans.cpp
+src/tu/PSXAudio.cpp
+src/tu/PSXCamera.cpp
+src/tu/PSXControlInterface.cpp
+src/tu/PSXGame.cpp
+src/tu/PSXInputDevice.cpp
+src/tu/PSXInputDeviceType.cpp
+src/tu/PSXMain.cpp
+src/tu/PSXRenderTarget.cpp
+src/tu/PSXTexMap.cpp
+src/tu/PSXVideoCard.cpp
+src/tu/QuadTree.cpp
+src/tu/ColorMapper.cpp
+src/tu/RenderTarget.cpp
+src/tu/SceneManager.cpp
+src/tu/SelectiveGravityModel.cpp
+src/tu/SkyCube.cpp
+src/tu/soultree.cpp
+src/tu/SoultreeMaterial.cpp
+src/tu/StripMesh.cpp
+src/tu/SurfaceMap.cpp
+src/tu/Terrain.cpp
+src/tu/TextureMap.cpp
+src/tu/TextureMapManager.cpp
+src/tu/Texutil.cpp
+src/tu/TokenString.cpp
+src/tu/TypeRegistry.cpp
+src/tu/VideoCard.cpp
+src/tu/VisibilityQuadTree.cpp
+src/tu/visible.cpp
+src/tu/AgeManager.cpp
+src/tu/PhysicsObject.cpp
+src/tu/TriggerObject.cpp
+src/tu/Smoker.cpp
+src/tu/JetskiInGameOverlay.cpp
+src/tu/AuralScape.cpp
+src/tu/JetskiAIVehicle.cpp
+src/tu/PSXTextureMapManager.cpp
+src/tu/TrackType.cpp
+src/tu/DataAccess.cpp
+src/tu/PSXRenderStateBlock.cpp
+src/tu/GsTextureTransfer.cpp
+src/tu/IpuTextureTransfer.cpp
+src/tu/DmaPacket.cpp
+src/tu/JetskiGameOptions.cpp
+src/tu/PSXWater.cpp
+src/tu/TextOverlay.cpp
+src/tu/MediaControl.cpp
+src/tu/PSXMediaControl.cpp
+src/tu/PSXMpegDefs.cpp
+src/tu/PSXMpegVideo.cpp
+src/tu/WaterDisplacement.cpp
+src/tu/JetskiInGameMenu.cpp
+src/tu/PSXWaterDisplacement.cpp
+src/tu/SpringCollisionDetectionModel.cpp
+src/tu/SpringCollisionModel.cpp
+src/tu/HydrodynamicsModel.cpp
+src/tu/JetskiAirControlModel.cpp
+src/tu/PSXSignatureWave.cpp
+src/tu/Water.cpp
+src/tu/CinematographerCam.cpp
+src/tu/CutSceneCamera.cpp
+src/tu/MemoryCard.cpp
+src/tu/JetskiParticleEmitters.cpp
+src/tu/ParticleEmitter.cpp
+src/tu/MapFile.cpp
+src/tu/SearchMethod.cpp
+src/tu/SearchNode.cpp
+src/tu/PSXMemoryCard.cpp
+src/tu/SearchPlacement.cpp
+src/tu/Portal.cpp
+src/tu/SpatialSearch.cpp
+src/tu/SimpleFollowCam.cpp
+src/tu/CameraBehavior.cpp
+src/tu/JetskiFollowCam.cpp
+src/tu/AnimTextureMap.cpp
+src/tu/RaceStatusClass.cpp
+src/tu/GateClass.cpp
+src/tu/Quadrilateral2D.cpp
+src/tu/SimpleThrillCam.cpp
+src/tu/BuoyObject.cpp
+src/tu/FastMath.cpp
+src/tu/JetskiThrillCam.cpp
+src/tu/SearchList.cpp
+src/tu/VehicleAI.cpp
+src/tu/SimpleTVCamera.cpp
+src/tu/JetskiTVCamera.cpp
+src/tu/PSXUIWaterEffect.cpp
+src/tu/UIWaterEffect.cpp
+src/tu/Mesh.cpp
+src/tu/JetskiUIGlobalManager.cpp
+src/tu/UIGlobalManager.cpp
+src/tu/UICamera.cpp
+src/tu/UIGroup.cpp
+src/tu/UIManager.cpp
+src/tu/UIWidgetEventHandler.cpp
+src/tu/UIWidgets.cpp
+src/tu/UIPage.cpp
+src/tu/CameraController.cpp
+src/tu/JetskiCameraController.cpp
+src/tu/WaterObject.cpp
+src/tu/ContentDirectories.cpp
+src/tu/JetskiUIWidgets.cpp
+src/tu/JetskiRider.cpp
+src/tu/WaterWrecker.cpp
+src/tu/RainbowPS2Snd.cpp
+src/tu/MicroProgram.cpp
+src/tu/StringTable.cpp
+src/tu/JetskiGroundModel.cpp
+src/tu/BuoyancyModel.cpp
+src/tu/SimpleWreckCam.cpp
+src/tu/JetskiWreckCam.cpp
+src/tu/FirstPersonCam.cpp
+src/tu/JetskiAudio.cpp
+src/tu/PSXRenderableObject.cpp
+src/tu/RenderableObject.cpp
+src/tu/PSXSurfaceMaterial.cpp
+src/tu/PSXSurfaceShader.cpp
+src/tu/PSXSurfaceGeometry.cpp
+src/tu/SurfaceMaterial.cpp
+src/tu/SurfaceShader.cpp
+src/tu/SurfaceGeometry.cpp
+src/tu/SoundEmitters.cpp
+src/tu/PSXMesh.cpp
+src/tu/LightFlare.cpp
+src/tu/KeyFrameController.cpp
+src/tu/MotionLibrary.cpp
+src/tu/AngleAxis.cpp
+src/tu/JetskiPracticeCompetition.cpp
+src/tu/FileIO.cpp
+src/tu/JetskiUIPages.cpp
+src/tu/JetskiUIManagers.cpp
+src/tu/ScreenTextManager.cpp
+src/tu/ScreenTextFontManager.cpp
+src/tu/ScreenPrimitiveManager.cpp
+src/tu/ScreenIconManager.cpp
+src/tu/JetskiStuntsKey.cpp
+src/tu/Clut.cpp
+src/tu/UIWater.cpp
+src/tu/JetskiCareerCompetition.cpp
+src/tu/JetskiChallengeCompetition.cpp
+src/tu/JetskiLoadManager.cpp
+src/tu/JetskiRaceOverMenus.cpp
+src/tu/SimpleVCR.cpp
+src/tu/JetskiVCRController.cpp
+src/tu/JetskiMemPages.cpp
+src/tu/JetskiTraining.cpp
+src/tu/ManagedTextureGroup.cpp
+src/tu/ScreenObject.cpp
+src/tu/ParticleVUPhysics.cpp
+src/tu/Localization.cpp
+src/tu/LoadingIcon.cpp
+src/tu/MaterialStringTable.cpp
+src/tu/TextureMapStringTable.cpp
+src/tu/InstanceMasterList.cpp
+src/tu/VideoFXManager.cpp
+src/tu/JetskiProgressBar.cpp
+src/tu/zlib/adler32.cpp
+src/tu/zlib/deflate.cpp
+src/tu/zlib/infblock.cpp
+src/tu/zlib/infcodes.cpp
+src/tu/zlib/inffast.cpp
+src/tu/zlib/inflate.cpp
+src/tu/zlib/inftrees.cpp
+src/tu/zlib/infutil.cpp
+src/tu/zlib/trees.cpp
+src/tu/zlib/zutil.cpp
+src/tu/msl/ArrayRuntime.cpp
+src/tu/msl/Delete.cpp
+src/tu/msl/MWRTTI.cpp
+src/tu/msl/NewHandler.cpp
+src/tu/msl/New.cpp
+src/tu/msl/NMWException.cpp
+src/tu/msl/GlobalDestructorChain.cpp
+src/tu/msl/ExceptionHandling.cpp
+src/tu/msl/ExceptionFrames.cpp
+src/tu/msl/SoftFloatHelpers.cpp
+sdk libgcc/_divdi3
+sdk libgcc/_exit
+sdk libgcc/_fixdfdi
+sdk libgcc/_fixunsdfdi
+sdk libgcc/_fixunssfdi
+sdk libgcc/_floatdidf
+sdk libgcc/_floatdisf
+sdk libgcc/_moddi3
+sdk libgcc/_muldi3
+sdk libgcc/_udivdi3
+sdk libgcc/_umoddi3
+sdk libgcc/dp-bit
+sdk libgcc/fp-bit
+sdk libgraph/gsresetgraph
+sdk libgraph/gsresetpath
+sdk libgraph/gssyncv
+sdk libdma/dma
+sdk libdev/devvu0
+sdk libdev/devvu1
+sdk libdev/devvif1
+sdk libvu0/libvu0
+sdk libmpeg/decode
+sdk libmpeg/csc
+sdk libmpeg/sysbit
+sdk libmpeg/demux
+sdk libmpeg/mpeg
+sdk libmpeg/sequence
+sdk libmpeg/defdma
+sdk libipu/ipudma
+sdk libipu/ipuinit
+sdk libkernl/syscall
+sdk libkernl/glue
+sdk libkernl/cache
+sdk libkernl/intr
+sdk libkernl/thread
+sdk libkernl/deci2
+sdk libkernl/tty
+sdk libkernl/kprintf
+sdk libkernl/sifcmd
+sdk libkernl/sifrpc
+sdk libkernl/fileio
+sdk libkernl/iopheap
+sdk libkernl/loadfile
+sdk libkernl/iopreset
+sdk libm/e_acos
+sdk libm/e_atan2
+sdk libm/e_fmod
+sdk libm/e_log
+sdk libm/e_pow
+sdk libm/e_rem_pio2
+sdk libm/e_sqrt
+sdk libm/ef_fmod
+sdk libm/k_cos
+sdk libm/k_rem_pio2
+sdk libm/k_sin
+sdk libm/s_atan
+sdk libm/s_copysign
+sdk libm/s_cos
+sdk libm/s_fabs
+sdk libm/s_finite
+sdk libm/s_floor
+sdk libm/s_infconst
+sdk libm/s_lib_ver
+sdk libm/s_isinf
+sdk libm/s_isnan
+sdk libm/s_ldexp
+sdk libm/s_matherr
+sdk libm/s_rint
+sdk libm/s_scalbn
+sdk libm/s_sin
+sdk libm/sf_isnan
+sdk libm/w_acos
+sdk libm/w_atan2
+sdk libm/w_fmod
+sdk libm/w_log
+sdk libm/w_pow
+sdk libm/w_sqrt
+sdk libm/wf_fmod
+sdk libc/ctype_
+sdk libc/abort
+sdk libc/atof
+sdk libc/atoi
+sdk libc/calloc
+sdk libc/callocr
+sdk libc/closer
+sdk libc/dtoa
+sdk libc/impure
+sdk libc/errno
+sdk libc/fflush
+sdk libc/findfp
+sdk libc/fprintf
+sdk libc/fread
+sdk libc/freer
+sdk libc/fstatr
+sdk libc/fvwrite
+sdk libc/fwalk
+sdk libc/locale
+sdk libc/lseekr
+sdk libc/makebuf
+sdk libc/malign
+sdk libc/malignr
+sdk libc/malloc
+sdk libc/mallocr
+sdk libc/mbtowc_r
+sdk libc/memchr
+sdk libc/memcmp
+sdk libc/memcpy
+sdk libc/memmove
+sdk libc/memset
+sdk libc/mlock
+sdk libc/mprec
+sdk libc/printf
+sdk libc/qsort
+sdk libc/rand
+sdk libc/readr
+sdk libc/realloc
+sdk libc/reallocr
+sdk libc/refill
+sdk libc/sbrkr
+sdk libc/signal
+sdk libc/signalr
+sdk libc/sprintf
+sdk libc/sscanf
+sdk libc/stdio
+sdk libc/strcasecmp
+sdk libc/strcat
+sdk libc/strcmp
+sdk libc/strcpy
+sdk libc/strcspn
+sdk libc/strlen
+sdk libc/strlwr
+sdk libc/strncasecmp
+sdk libc/strncat
+sdk libc/strncmp
+sdk libc/strncpy
+sdk libc/strpbrk
+sdk libc/strstr
+sdk libc/strtod
+sdk libc/strtok
+sdk libc/strtok_r
+sdk libc/strtol
+sdk libc/strtoul
+sdk libc/strupr
+sdk libc/tolower
+sdk libc/ungetc
+sdk libc/vfprintf
+sdk libc/vfscanf
+sdk libc/vprintf
+sdk libc/vsprintf
+sdk libc/writer
+sdk libc/wsetup
+sdk libcdvd/cdvd
+sdk libpad/pad
+sdk libmtap/mtap
+sdk libmc/mc
+src/tu/JetskiUIPageSettings.cpp
+src/tu/BoatProcedural.cpp
+src/tu/JetskiScreenText.cpp
+src/tu/JetskiVehicle.cpp
+src/tu/JetskiRollControlModel.cpp
+src/tu/JetskiParticleEmittersSplash.cpp
+src/tu/JetskiParticleEmittersJet.cpp
+src/tu/JetskiParticleEmittersDrip.cpp
+src/tu/JetskiCollisionModel.cpp

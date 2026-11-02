@@ -1,0 +1,225 @@
+# splat.yaml — Splashdown (SLUS_202.23)
+#
+# The main LOAD segment maps file 0x100 -> vram 0x200000,
+# so: vaddr = file_offset + 0x1FFF00.
+#
+# Layout (from ELF program headers):
+#   main LOAD: file 0x100 -> vram 0x200000, filesz 0x24EA00, memsz 0x2F5680
+#   entry: 0x200008 (Sony crt0: BSS clear 0x44EA00-0x4F5680, then init calls)
+#   BSS: vram 0x44EA00, size 0xA6C80
+#
+# Refined section map:
+#   .text:        0x200000-0x3DFFFF  (4,337 functions; first at 0x2000B0 —
+#                 the crt0 BSS-clear loop at 0x200008 wasn't auto-recognized)
+#   .rodata:      0x3E0000-0x43FFFF  (zero functions; strings, vtables,
+#                 TypeRegistry names)
+#   .text island: 0x440000-0x445CE7  (__sinit_<File> static initializers, one per
+#                 TU with globals, in link order — per the retail .symtab)
+#   .data:        0x445CF0-0x44E9FF  (.p__sinit_* pointer table, then data)
+#   .bss:         0x44EA00-0x4F567F
+#
+# Non-mwcc code: crt0 (0x200000-0x2000C0) and the libraries
+# linked after the game objects (0x3A1AD8-0x3CA670: libgcc, Sony SDK
+# libs stamped 2100-2140, newlib) are one asm subsegment per retail object,
+# asm/sdk/<lib>/, carried verbatim and not decompiled. Game code is `text`
+# (0x2000C0-) and `text_late` (0x3CA670-).
+
+name: splashdown
+sha1: 496ba6a5bfe9d7e68ea2edb993b493033ccc9bae
+
+options:
+  basename: SLUS_202.23
+  target_path: baserom/SLUS_202.23
+  base_path: ..
+  compiler: EEGCC
+  platform: ps2
+  asm_path: asm
+  src_path: src
+  build_path: build
+  asset_path: assets
+  # Disassemble every function up front: progress tooling reads retail
+  # bytes/sizes from the generated .s files.
+  disassemble_all: True
+  # Let splat refine code/data boundaries inside subsegments.
+  find_file_boundaries: True
+  # Do not auto-create .c files: src/tu/ has one file per retail TU.
+  create_c_files: False
+  # Emit subsegments in listed order: retail layout is text, rodata, text
+  # island, data — splat's default section grouping would reorder them.
+  ld_legacy_generation: True
+  # Until TUs are split out as c segments, game code is one asm file per
+  # region (text, text_late); library code is one file per object (asm/sdk).
+  symbol_addrs_path:
+    - config/symbol_addrs.txt
+
+segments:
+  - [0x0, bin, elf_header]       # ELF + program headers
+  - name: main
+    type: code
+    start: 0x100
+    vram: 0x200000
+    bss_size: 0xA6C80
+    # 8, not splat's default 16: ee-gcc objects start on 8-byte boundaries.
+    subalign: 8
+    subsegments:
+      - [0x100, asm, sdk/crt0/crt0]                 # 0x200000-0x2000C0 _start (+3)
+      - [0x1C0, asm, text]                          # 0x2000C0-0x3A1AD8 : Soultree, Jetski, PSX layer, zlib, MSL runtime (mwcc)
+      # ---- Sony SDK + ee-gcc runtime, 0x3A1AD8-0x3CA670 ----
+      - [0x1A1BD8, asm, sdk/libgcc/_divdi3]         # 0x3A1AD8-0x3A21C8 __divdi3
+      - [0x1A22C8, asm, sdk/libgcc/_exit]           # 0x3A21C8-0x3A21F8 exit
+      - [0x1A22F8, asm, sdk/libgcc/_fixdfdi]        # 0x3A21F8-0x3A2258 __fixdfdi
+      - [0x1A2358, asm, sdk/libgcc/_fixunsdfdi]     # 0x3A2258-0x3A2348 __fixunsdfdi
+      - [0x1A2448, asm, sdk/libgcc/_fixunssfdi]     # 0x3A2348-0x3A2440 __fixunssfdi
+      - [0x1A2540, asm, sdk/libgcc/_floatdidf]      # 0x3A2440-0x3A24D8 __floatdidf
+      - [0x1A25D8, asm, sdk/libgcc/_floatdisf]      # 0x3A24D8-0x3A25B8 __floatdisf
+      - [0x1A26B8, asm, sdk/libgcc/_moddi3]         # 0x3A25B8-0x3A2C20 __moddi3
+      - [0x1A2D20, asm, sdk/libgcc/_muldi3]         # 0x3A2C20-0x3A2C80 __muldi3
+      - [0x1A2D80, asm, sdk/libgcc/_udivdi3]        # 0x3A2C80-0x3A3250 __udivdi3
+      - [0x1A3350, asm, sdk/libgcc/_umoddi3]        # 0x3A3250-0x3A3790 __umoddi3
+      - [0x1A3890, asm, sdk/libgcc/dp-bit]          # 0x3A3790-0x3A4488 __pack_d (+14)
+      - [0x1A4588, asm, sdk/libgcc/fp-bit]          # 0x3A4488-0x3A5068 __pack_f (+14)
+      - [0x1A5168, asm, sdk/libgraph/gsresetgraph]  # 0x3A5068-0x3A5188 sceGsResetGraph (+1)
+      - [0x1A5288, asm, sdk/libgraph/gsresetpath]   # 0x3A5188-0x3A51F0 sceGsResetPath
+      - [0x1A52F0, asm, sdk/libgraph/gssyncv]       # 0x3A51F0-0x3A5288 sceGsSyncV
+      - [0x1A5388, asm, sdk/libdma/dma]             # 0x3A5288-0x3A5DA8 memclr (+20)
+      - [0x1A5EA8, asm, sdk/libdev/devvu0]          # 0x3A5DA8-0x3A61B8 sceDevVu0CheckBusy (+12)
+      - [0x1A62B8, asm, sdk/libdev/devvu1]          # 0x3A61B8-0x3A6710 sceVuCheckBusy (+14)
+      - [0x1A6810, asm, sdk/libdev/devvif1]         # 0x3A6710-0x3A6AF8 sceDevVif1Reset (+8)
+      - [0x1A6BF8, asm, sdk/libvu0/libvu0]          # 0x3A6AF8-0x3A7840 sceVu0ApplyMatrix (+41)
+      - [0x1A7940, asm, sdk/libmpeg/decode]         # 0x3A7840-0x3AC5C0 _motionComp0 (+62)
+      - [0x1AC6C0, asm, sdk/libmpeg/csc]            # 0x3AC5C0-0x3ACA68 _doCSC (+3)
+      - [0x1ACB68, asm, sdk/libmpeg/sysbit]         # 0x3ACA68-0x3ACC78 _sysbitInit (+6)
+      - [0x1ACD78, asm, sdk/libmpeg/demux]          # 0x3ACC78-0x3ADA50 _type2id (+7)
+      - [0x1ADB50, asm, sdk/libmpeg/mpeg]           # 0x3ADA50-0x3AE610 sceMpegInit (+34)
+      - [0x1AE710, asm, sdk/libmpeg/sequence]       # 0x3AE610-0x3AF1E8 _initSeqAgain (+18)
+      - [0x1AF2E8, asm, sdk/libmpeg/defdma]         # 0x3AF1E8-0x3AF208 _defStopDMA (+1)
+      - [0x1AF308, asm, sdk/libipu/ipudma]          # 0x3AF208-0x3AF5C0 sceIpuStopDMA (+2)
+      - [0x1AF6C0, asm, sdk/libipu/ipuinit]         # 0x3AF5C0-0x3AF880 sceIpuInit
+      - [0x1AF980, asm, sdk/libkernl/syscall]       # 0x3AF880-0x3B0110 RFU000_FullReset (+136)
+      - [0x1B0210, asm, sdk/libkernl/glue]          # 0x3B0110-0x3B04B8 sceResetttyinit (+17)
+      - [0x1B05B8, asm, sdk/libkernl/cache]         # 0x3B04B8-0x3B0728 _sceSDC (+5)
+      - [0x1B0828, asm, sdk/libkernl/intr]          # 0x3B0728-0x3B0A60 DisableIntc (+11)
+      - [0x1B0B60, asm, sdk/libkernl/thread]        # 0x3B0A60-0x3B0DC0 topThread (+4)
+      - [0x1B0EC0, asm, sdk/libkernl/deci2]         # 0x3B0DC0-0x3B0FA0 sceDeci2Open (+9)
+      - [0x1B10A0, asm, sdk/libkernl/tty]           # 0x3B0FA0-0x3B14C0 QueueInit (+6)
+      - [0x1B15C0, asm, sdk/libkernl/kprintf]       # 0x3B14C0-0x3B1F00 kputchar (+8)
+      - [0x1B2000, asm, sdk/libkernl/sifcmd]        # 0x3B1F00-0x3B2660 _set_sreg (+15)
+      - [0x1B2760, asm, sdk/libkernl/sifrpc]        # 0x3B2660-0x3B3588 sceSifInitRpc (+21)
+      - [0x1B3688, asm, sdk/libkernl/fileio]        # 0x3B3588-0x3B42A0 new_iob (+16)
+      - [0x1B43A0, asm, sdk/libkernl/iopheap]       # 0x3B42A0-0x3B4500 sceSifInitIopHeap (+3)
+      - [0x1B4600, asm, sdk/libkernl/loadfile]      # 0x3B4500-0x3B4DD0 _lf_bind (+10)
+      - [0x1B4ED0, asm, sdk/libkernl/iopreset]      # 0x3B4DD0-0x3B5070 sceSifResetIop (+3)
+      - [0x1B5170, asm, sdk/libm/e_acos]            # 0x3B5070-0x3B5640 __ieee754_acos
+      - [0x1B5740, asm, sdk/libm/e_atan2]           # 0x3B5640-0x3B5978 __ieee754_atan2
+      - [0x1B5A78, asm, sdk/libm/e_fmod]            # 0x3B5978-0x3B5D68 __ieee754_fmod
+      - [0x1B5E68, asm, sdk/libm/e_log]             # 0x3B5D68-0x3B6258 __ieee754_log
+      - [0x1B6358, asm, sdk/libm/e_pow]             # 0x3B6258-0x3B6F80 __ieee754_pow
+      - [0x1B7080, asm, sdk/libm/e_rem_pio2]        # 0x3B6F80-0x3B74A0 __ieee754_rem_pio2
+      - [0x1B75A0, asm, sdk/libm/e_sqrt]            # 0x3B74A0-0x3B77A8 __ieee754_sqrt
+      - [0x1B78A8, asm, sdk/libm/ef_fmod]           # 0x3B77A8-0x3B79F8 __ieee754_fmodf
+      - [0x1B7AF8, asm, sdk/libm/k_cos]             # 0x3B79F8-0x3B7C48 __kernel_cos
+      - [0x1B7D48, asm, sdk/libm/k_rem_pio2]        # 0x3B7C48-0x3B87B0 __kernel_rem_pio2
+      - [0x1B88B0, asm, sdk/libm/k_sin]             # 0x3B87B0-0x3B8988 __kernel_sin
+      - [0x1B8A88, asm, sdk/libm/s_atan]            # 0x3B8988-0x3B8D98 atan
+      - [0x1B8E98, asm, sdk/libm/s_copysign]        # 0x3B8D98-0x3B8DE0 copysign
+      - [0x1B8EE0, asm, sdk/libm/s_cos]             # 0x3B8DE0-0x3B8EE8 cos
+      - [0x1B8FE8, asm, sdk/libm/s_fabs]            # 0x3B8EE8-0x3B8F20 fabs
+      - [0x1B9020, asm, sdk/libm/s_finite]          # 0x3B8F20-0x3B8F40 finite
+      - [0x1B9040, asm, sdk/libm/s_floor]           # 0x3B8F40-0x3B9118 floor
+      - [0x1B9218, asm, sdk/libm/s_isinf]           # 0x3B9118-0x3B9160 isinf
+      - [0x1B9260, asm, sdk/libm/s_isnan]           # 0x3B9160-0x3B9198 isnan
+      - [0x1B9298, asm, sdk/libm/s_ldexp]           # 0x3B9198-0x3B9230 ldexp
+      - [0x1B9330, asm, sdk/libm/s_matherr]         # 0x3B9230-0x3B9258 matherr
+      - [0x1B9358, asm, sdk/libm/s_rint]            # 0x3B9258-0x3B9458 rint
+      - [0x1B9558, asm, sdk/libm/s_scalbn]          # 0x3B9458-0x3B9610 scalbn
+      - [0x1B9710, asm, sdk/libm/s_sin]             # 0x3B9610-0x3B9708 sin
+      - [0x1B9808, asm, sdk/libm/sf_isnan]          # 0x3B9708-0x3B9730 isnanf
+      - [0x1B9830, asm, sdk/libm/w_acos]            # 0x3B9730-0x3B9820 acos
+      - [0x1B9920, asm, sdk/libm/w_atan2]           # 0x3B9820-0x3B9938 atan2
+      - [0x1B9A38, asm, sdk/libm/w_fmod]            # 0x3B9938-0x3B9A58 fmod
+      - [0x1B9B58, asm, sdk/libm/w_log]             # 0x3B9A58-0x3B9BA0 log
+      - [0x1B9CA0, asm, sdk/libm/w_pow]             # 0x3B9BA0-0x3B9FD0 pow
+      - [0x1BA0D0, asm, sdk/libm/w_sqrt]            # 0x3B9FD0-0x3BA0E0 sqrt
+      - [0x1BA1E0, asm, sdk/libm/wf_fmod]           # 0x3BA0E0-0x3BA220 fmodf
+      - [0x1BA320, asm, sdk/libc/abort]             # 0x3BA220-0x3BA240 abort
+      - [0x1BA340, asm, sdk/libc/atof]              # 0x3BA240-0x3BA260 atof
+      - [0x1BA360, asm, sdk/libc/atoi]              # 0x3BA260-0x3BA288 atoi
+      - [0x1BA388, asm, sdk/libc/calloc]            # 0x3BA288-0x3BA2B8 calloc
+      - [0x1BA3B8, asm, sdk/libc/callocr]           # 0x3BA2B8-0x3BA378 _calloc_r
+      - [0x1BA478, asm, sdk/libc/closer]            # 0x3BA378-0x3BA3D0 _close_r
+      - [0x1BA4D0, asm, sdk/libc/dtoa]              # 0x3BA3D0-0x3BB7B8 quorem (+1)
+      - [0x1BB8B8, asm, sdk/libc/errno]             # 0x3BB7B8-0x3BB7C8 __errno
+      - [0x1BB8C8, asm, sdk/libc/fflush]            # 0x3BB7C8-0x3BB8D0 fflush
+      - [0x1BB9D0, asm, sdk/libc/findfp]            # 0x3BB8D0-0x3BBB28 std (+5)
+      - [0x1BBC28, asm, sdk/libc/fprintf]           # 0x3BBB28-0x3BBB60 fprintf
+      - [0x1BBC60, asm, sdk/libc/fread]             # 0x3BBB60-0x3BBC80 fread
+      - [0x1BBD80, asm, sdk/libc/freer]             # 0x3BBC80-0x3BC110 _free_r (+1)
+      - [0x1BC210, asm, sdk/libc/fstatr]            # 0x3BC110-0x3BC170 _fstat_r
+      - [0x1BC270, asm, sdk/libc/fvwrite]           # 0x3BC170-0x3BC548 __sfvwrite
+      - [0x1BC648, asm, sdk/libc/fwalk]             # 0x3BC548-0x3BC5E0 _fwalk
+      - [0x1BC6E0, asm, sdk/libc/locale]            # 0x3BC5E0-0x3BC6D0 _setlocale_r (+3)
+      - [0x1BC7D0, asm, sdk/libc/lseekr]            # 0x3BC6D0-0x3BC730 _lseek_r
+      - [0x1BC830, asm, sdk/libc/makebuf]           # 0x3BC730-0x3BC880 __smakebuf
+      - [0x1BC980, asm, sdk/libc/malign]            # 0x3BC880-0x3BC8B0 memalign
+      - [0x1BC9B0, asm, sdk/libc/malignr]           # 0x3BC8B0-0x3BCA80 _memalign_r
+      - [0x1BCB80, asm, sdk/libc/malloc]            # 0x3BCA80-0x3BCAB8 malloc (+1)
+      - [0x1BCBB8, asm, sdk/libc/mallocr]           # 0x3BCAB8-0x3BD488 malloc_extend_top (+1)
+      - [0x1BD588, asm, sdk/libc/mbtowc_r]          # 0x3BD488-0x3BD4C8 _mbtowc_r
+      - [0x1BD5C8, asm, sdk/libc/memchr]            # 0x3BD4C8-0x3BD5A8 memchr
+      - [0x1BD6A8, asm, sdk/libc/memcmp]            # 0x3BD5A8-0x3BD640 memcmp
+      - [0x1BD740, asm, sdk/libc/memcpy]            # 0x3BD640-0x3BD6F0 memcpy
+      - [0x1BD7F0, asm, sdk/libc/memmove]           # 0x3BD6F0-0x3BD7F8 memmove
+      - [0x1BD8F8, asm, sdk/libc/memset]            # 0x3BD7F8-0x3BD8B8 memset
+      - [0x1BD9B8, asm, sdk/libc/mlock]             # 0x3BD8B8-0x3BD8C8 __malloc_lock (+1)
+      - [0x1BD9C8, asm, sdk/libc/mprec]             # 0x3BD8C8-0x3BE8E8 _Balloc (+16)
+      - [0x1BE9E8, asm, sdk/libc/printf]            # 0x3BE8E8-0x3BE978 _printf_r (+1)
+      - [0x1BEA78, asm, sdk/libc/qsort]             # 0x3BE978-0x3BF3A0 qsort
+      - [0x1BF4A0, asm, sdk/libc/rand]              # 0x3BF3A0-0x3BF3E0 srand (+1)
+      - [0x1BF4E0, asm, sdk/libc/readr]             # 0x3BF3E0-0x3BF440 _read_r
+      - [0x1BF540, asm, sdk/libc/realloc]           # 0x3BF440-0x3BF470 realloc
+      - [0x1BF570, asm, sdk/libc/reallocr]          # 0x3BF470-0x3BF9E0 _realloc_r
+      - [0x1BFAE0, asm, sdk/libc/refill]            # 0x3BF9E0-0x3BFB78 lflush (+1)
+      - [0x1BFC78, asm, sdk/libc/sbrkr]             # 0x3BFB78-0x3BFBD8 _sbrk_r
+      - [0x1BFCD8, asm, sdk/libc/signal]            # 0x3BFBD8-0x3BFF28 _init_signal_r (+7)
+      - [0x1C0028, asm, sdk/libc/signalr]           # 0x3BFF28-0x3BFFA8 _kill_r (+1)
+      - [0x1C00A8, asm, sdk/libc/sprintf]           # 0x3BFFA8-0x3C0080 _sprintf_r (+1)
+      - [0x1C0180, asm, sdk/libc/sscanf]            # 0x3C0080-0x3C0110 eofread (+1)
+      - [0x1C0210, asm, sdk/libc/stdio]             # 0x3C0110-0x3C0280 __sread (+3)
+      - [0x1C0380, asm, sdk/libc/strcasecmp]        # 0x3C0280-0x3C0338 strcasecmp
+      - [0x1C0438, asm, sdk/libc/strcat]            # 0x3C0338-0x3C0468 strcat
+      - [0x1C0568, asm, sdk/libc/strcmp]            # 0x3C0468-0x3C05B0 strcmp
+      - [0x1C06B0, asm, sdk/libc/strcpy]            # 0x3C05B0-0x3C06C8 strcpy
+      - [0x1C07C8, asm, sdk/libc/strcspn]           # 0x3C06C8-0x3C0728 strcspn
+      - [0x1C0828, asm, sdk/libc/strlen]            # 0x3C0728-0x3C0860 strlen
+      - [0x1C0960, asm, sdk/libc/strlwr]            # 0x3C0860-0x3C08B8 strlwr
+      - [0x1C09B8, asm, sdk/libc/strncasecmp]       # 0x3C08B8-0x3C0998 strncasecmp
+      - [0x1C0A98, asm, sdk/libc/strncat]           # 0x3C0998-0x3C0B48 strncat
+      - [0x1C0C48, asm, sdk/libc/strncmp]           # 0x3C0B48-0x3C0D00 strncmp
+      - [0x1C0E00, asm, sdk/libc/strncpy]           # 0x3C0D00-0x3C0EC0 strncpy
+      - [0x1C0FC0, asm, sdk/libc/strpbrk]           # 0x3C0EC0-0x3C0F28 strpbrk
+      - [0x1C1028, asm, sdk/libc/strstr]            # 0x3C0F28-0x3C0F98 strstr
+      - [0x1C1098, asm, sdk/libc/strtod]            # 0x3C0F98-0x3C1EF0 _strtod_r (+2)
+      - [0x1C1FF0, asm, sdk/libc/strtok]            # 0x3C1EF0-0x3C1F18 strtok
+      - [0x1C2018, asm, sdk/libc/strtok_r]          # 0x3C1F18-0x3C1FB8 strtok_r
+      - [0x1C20B8, asm, sdk/libc/strtol]            # 0x3C1FB8-0x3C2228 _strtol_r (+1)
+      - [0x1C2328, asm, sdk/libc/strtoul]           # 0x3C2228-0x3C2480 _strtoul_r (+1)
+      - [0x1C2580, asm, sdk/libc/strupr]            # 0x3C2480-0x3C24D8 strupr
+      - [0x1C25D8, asm, sdk/libc/tolower]           # 0x3C24D8-0x3C24F8 tolower
+      - [0x1C25F8, asm, sdk/libc/ungetc]            # 0x3C24F8-0x3C2770 __submore (+1)
+      - [0x1C2870, asm, sdk/libc/vfprintf]          # 0x3C2770-0x3C4090 __sprint (+5)
+      - [0x1C4190, asm, sdk/libc/vfscanf]           # 0x3C4090-0x3C4CA0 __svfscanf (+1)
+      - [0x1C4DA0, asm, sdk/libc/vprintf]           # 0x3C4CA0-0x3C4CD0 vprintf
+      - [0x1C4DD0, asm, sdk/libc/vsprintf]          # 0x3C4CD0-0x3C4D28 vsprintf
+      - [0x1C4E28, asm, sdk/libc/writer]            # 0x3C4D28-0x3C4D88 _write_r
+      - [0x1C4E88, asm, sdk/libc/wsetup]            # 0x3C4D88-0x3C4E98 __swsetup
+      - [0x1C4F98, asm, sdk/libcdvd/cdvd]           # 0x3C4E98-0x3C7C10 CB_DelayTh (+49)
+      - [0x1C7D10, asm, sdk/libpad/pad]             # 0x3C7C10-0x3C8FB8 _send_to_iop (+29)
+      - [0x1C90B8, asm, sdk/libmtap/mtap]           # 0x3C8FB8-0x3C9488 DPRINT (+6)
+      - [0x1C9588, asm, sdk/libmc/mc]               # 0x3C9488-0x3CA670 sceMcInit (+23)
+      - [0x1CA770, asm, text_late]                  # 0x3CA670-0x3DFFFF : late game TUs (JetskiUIPageSettings ..., mwcc) + game VU microcode
+
+      - [0x1E0100, rodata, rodata]  # 0x3E0000-0x43FFFF : strings, vtables, constants
+      - [0x240100, asm, text_island]# 0x440000-0x445CE7 : __sinit_* static initializers (127 funcs)
+      - [0x245DF0, data, data]      # 0x445CF0-        : .p__sinit_* ctor table, then writable data
+  - [0x24EB00, bin, elf_tail]       # non-loaded: .strtab/.symtab/.debug/.line, truncated shdrs
+  - [0x392254]                      # end of file

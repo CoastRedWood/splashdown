@@ -1,0 +1,102 @@
+# SDK data sections: address, kind, end, object (asm/sdk/<object>.s).
+# Generated from the retail .symtab's section symbols; `override`
+# marks owners set by hand.
+# crt0's .bss (0x44F800) sits after the game's .sbss; COMMON lines
+# name the symbol (the end of .bss).
+0x0040E850 .data   0x0040E870 libgraph/gsresetgraph
+0x0040E870 .data   0x0040E890 libgraph/gsresetpath
+0x0040E890 .data   0x0040E940 libdma/dma
+0x0040E940 .data   0x0040E970 libvu0/libvu0
+0x0040E970 .data   0x0040EA60 libmpeg/decode
+0x0040EA60 .data   0x0040EA78 libmpeg/csc
+0x0040EA78 .data   0x0040EB28 libmpeg/demux
+0x0040EB28 .data   0x0040EB40 libmpeg/sequence  # override
+0x0040EB40 .data   0x0040F410 libmpeg/defdma  # override
+0x0040F410 .data   0x0040F490 libipu/ipuinit
+0x0040F490 .data   0x0040F4A0 libkernl/syscall  # override
+0x0040F4A0 .data   0x0040F4A8 libkernl/glue
+0x0040F4A8 .data   0x0040F4B0 libkernl/thread
+0x0040F4B0 .data   0x0040F4B8 libkernl/kprintf
+0x0040F4B8 .data   0x0040F4C0 libkernl/sifcmd
+0x0040F4C0 .data   0x0040F4C8 libkernl/sifrpc
+0x0040F4C8 .data   0x0040F4D8 libkernl/fileio
+0x0040F4D8 .data   0x0040F4E0 libkernl/iopheap
+0x0040F4E0 .data   0x0040F4E8 libkernl/loadfile
+0x0040F4E8 .data   0x0040F7D8 libc/impure  # override
+0x0040F7D8 .data   0x0040F7F0 libc/locale  # override
+0x0040F7F0 .data   0x0040FC48 libc/mallocr
+0x0040FC48 .data   0x0040FCB8 libcdvd/cdvd
+0x0040FCB8 .data   0x0040FD00 libpad/pad
+0x0040FD00 .data   0x0040FD18 libmc/mc
+0x0043D508 .rodata 0x0043D608 libgcc/_divdi3
+0x0043D608 .rodata 0x0043D708 libgcc/_moddi3
+0x0043D708 .rodata 0x0043D808 libgcc/_udivdi3
+0x0043D808 .rodata 0x0043D908 libgcc/_umoddi3
+0x0043D908 .rodata 0x0043D9D0 libdma/dma
+0x0043D9D0 .rodata 0x0043D9F0 libdev/devvu0
+0x0043D9F0 .rodata 0x0043DA08 libdev/devvu1
+0x0043DA08 .rodata 0x0043DCA0 libmpeg/decode
+0x0043DCA0 .rodata 0x0043DCB8 libmpeg/csc
+0x0043DCB8 .rodata 0x0043DCF0 libmpeg/demux
+0x0043DCF0 .rodata 0x0043DD98 libmpeg/mpeg
+0x0043DD98 .rodata 0x0043DEE0 libmpeg/sequence
+0x0043DEE0 .rodata 0x0043DF08 libkernl/thread
+0x0043DF08 .rodata 0x0043DF80 libkernl/tty
+0x0043DF80 .rodata 0x0043E0D8 libkernl/kprintf
+0x0043E0D8 .rodata 0x0043E0E0 libkernl/fileio  # override
+0x0043E0E0 .rodata 0x0043E0F0 libkernl/loadfile
+0x0043E0F0 .rodata 0x0043E120 libkernl/iopreset
+0x0043E120 .rodata 0x0043E2B0 libm/e_acos
+0x0043E2B0 .rodata 0x0043E360 libm/e_atan2
+0x0043E360 .rodata 0x0043E378 libm/e_fmod
+0x0043E378 .rodata 0x0043E458 libm/e_log
+0x0043E458 .rodata 0x0043E628 libm/e_pow
+0x0043E628 .rodata 0x0043E878 libm/e_rem_pio2
+0x0043E878 .rodata 0x0043E888 libm/ef_fmod
+0x0043E888 .rodata 0x0043E8F0 libm/k_cos
+0x0043E8F0 .rodata 0x0043E960 libm/k_rem_pio2
+0x0043E960 .rodata 0x0043E9D0 libm/k_sin
+0x0043E9D0 .rodata 0x0043EA80 libm/s_atan
+0x0043EA80 .rodata 0x0043EA90 libm/s_floor
+0x0043EA90 .rodata 0x0043EA98 libm/s_infconst  # override
+0x0043EA98 .rodata 0x0043EAA0 libm/s_lib_ver  # override
+0x0043EAA0 .rodata 0x0043EAB0 libm/s_rint
+0x0043EAB0 .rodata 0x0043EAE0 libm/s_scalbn
+0x0043EAE0 .rodata 0x0043EAE8 libm/w_acos
+0x0043EAE8 .rodata 0x0043EAF0 libm/w_atan2
+0x0043EAF0 .rodata 0x0043EB00 libm/w_fmod
+0x0043EB00 .rodata 0x0043EB10 libm/w_log
+0x0043EB10 .rodata 0x0043EB30 libm/w_pow
+0x0043EB30 .rodata 0x0043EB40 libm/w_sqrt
+0x0043EB40 .rodata 0x0043EB50 libm/wf_fmod
+0x0043EB50 .rodata 0x0043EC60 libc/ctype_  # override
+0x0043EC60 .rodata 0x0043ECB8 libc/dtoa
+0x0043ECB8 .rodata 0x0043ECC0 libc/impure  # override
+0x0043ECC0 .rodata 0x0043ED08 libc/locale
+0x0043ED08 .rodata 0x0043EE30 libc/mprec
+0x0043EE30 .rodata 0x0043EF00 libc/strtod
+0x0043EF00 .rodata 0x0043F110 libc/vfprintf
+0x0043F110 .rodata 0x0043F580 libc/vfscanf
+0x0043F580 .rodata 0x0043F998 libcdvd/cdvd
+0x0043F998 .rodata 0x0043FAF0 libpad/pad
+0x0043FAF0 .rodata 0x0043FC18 libmtap/mtap
+0x0043FC18 .rodata 0x0043FC80 libmc/mc
+0x0044F800 .bss    0x0044F944 crt0/crt0
+0x004E43D0 .bss    0x004E43E8 libgcc/dp-bit
+0x004E43E8 .bss    0x004E4400 libgcc/fp-bit
+0x004E4400 .bss    0x004E4E10 libmpeg/sequence
+0x004E4E10 .bss    0x004E5620 libkernl/thread
+0x004E5620 .bss    0x004E5680 libkernl/deci2
+0x004E5680 .bss    0x004E5A40 libkernl/tty
+0x004E5A40 .bss    0x004E5AC0 libkernl/kprintf
+0x004E5AC0 .bss    0x004E5D40 libkernl/sifcmd
+0x004E5D40 .bss    0x004E7580 libkernl/sifrpc
+0x004E7580 .bss    0x004E8400 libkernl/fileio
+0x004E8400 .bss    0x004E8600 libkernl/iopheap
+0x004E8600 .bss    0x004E8840 libkernl/loadfile
+0x004E8840 .bss    0x004E88C0 libkernl/iopreset
+0x004E88C0 .bss    0x004E9F40 libcdvd/cdvd
+0x004E9F40 .bss    0x004EA300 libpad/pad
+0x004EA300 .bss    0x004EA480 libmtap/mtap
+0x004EA480 .bss    0x004EBA80 libmc/mc
+0x004F566C COMMON  0x004F5670 libc/closer  # errno

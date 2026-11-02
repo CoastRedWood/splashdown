@@ -1,0 +1,75 @@
+// The Graphics Synthesizer on the PC (ports/pc/gs/): GIF packet parsing, the GS
+// registers, 4 MB of local memory with the real pixel-storage layouts, and a
+// software rasterizer that draws into that memory, so render targets,
+// textures, CLUTs and framebuffer copies read back as on the PS2.
+// The gs_* calls come from the DMA thread (ports/pc/dma.cpp) and serialize on
+// one lock; primitives are drawn by worker threads behind them.
+#ifndef PORT_GS_H
+#define PORT_GS_H
+
+#include <cstddef>
+#include <cstdint>
+#include <sys/mman.h>
+#include <vector>
+
+// Picture buffers live outside the game's brk heap (a frame a vblank would
+// churn it): mmap'd.
+template <class T> struct PortMmapAllocator {
+    using value_type = T;
+    PortMmapAllocator() = default;
+    template <class U> PortMmapAllocator(const PortMmapAllocator<U> &) {}
+    T *allocate(size_t n)
+    {
+        void *p = mmap(nullptr, n * sizeof(T), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        return p == MAP_FAILED ? nullptr : (T *)p;
+    }
+    void deallocate(T *p, size_t n) { munmap(p, n * sizeof(T)); }
+    template <class U> bool operator==(const PortMmapAllocator<U> &) const { return true; }
+};
+using PortFrame = std::vector<uint32_t, PortMmapAllocator<uint32_t>>;
+
+// The GIF's three inputs: PATH1 (VU1 XGKICK), PATH2 (VIF1 DIRECT), PATH3
+// (the GIF DMA channel). Each keeps its own tag state between calls.
+enum GsPath { GS_PATH1 = 0, GS_PATH2 = 1, GS_PATH3 = 2 };
+
+// Feed n quadwords of a GIF stream.
+void gs_gif_write(GsPath path, const void *qwords, size_t n);
+// PATH1: one GIF packet (tags up to EOP) from VU1 data memory at qword addr.
+void gs_gif_kick(const uint8_t *vumem, uint32_t qaddr);
+// Wait until the GS thread has taken everything queued (gs_gif_write/kick
+// return before it does).
+void gs_sync();
+// A local->host transfer (TRXDIR 1): read n quadwords into dst.
+void gs_read_image(void *dst, size_t n);
+
+// Serializes gs_* calls between the DMA thread and the presenter.
+void gs_lock();
+void gs_unlock();
+
+// The displayed picture (PMODE, DISPFB1/2, DISPLAY1/2 as the game wrote them
+// to 0x12000000), as RGBA8 rows. Returns false if no circuit is enabled.
+bool gs_read_display(PortFrame &rgba, int &w, int &h);
+
+// Finished frames so far: FINISHes with a display enabled (screenshots and
+// PORT_INPUT count these; frame seq is the displayed picture as it stood at
+// that FINISH, before the game moved DISPFB). Any thread.
+uint64_t gs_frame_seq();
+// Game frames (Flips: FINISHes after DISPFB moved).
+uint64_t gs_flip_count();
+
+// ports/pc/video.cpp, called at each finished frame on the GS's thread: does the
+// presenter want frame seq's picture (a window, a screenshot)? If so it gets
+// it (gs_read_display) before seq is published.
+bool port_video_want(uint64_t seq);
+void port_video_frame(uint64_t seq, PortFrame &&rgba, int w, int h);
+// FINISH register writes (the game sends one per Flip).
+uint64_t gs_finish_count();
+// Primitives drawn so far.
+uint64_t gs_prim_count();
+// Times the parser waited for the drawing threads.
+uint64_t gs_barrier_count();
+
+// Debugging: decode the texture TEX0 describes (CLUT loaded from its CBP).
+void gs_read_texture(uint64_t tex0, std::vector<uint32_t> &rgba, int &w, int &h);
+
+#endif

@@ -1,0 +1,29 @@
+# Never commit the retail executable or anything extracted from the disc
+/baserom
+# Build artifacts
+build/
+*.o
+*.elf
+*.map
+# Toolchain mirrors (third-party, local only)
+/toolchain
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+# Python env (splat)
+/.venv
+# splat output — derived from the baserom, regenerate with `make splat`
+asm/*
+!asm/.gitkeep
+assets/
+SLUS_202.23.ld
+undefined_*_auto.txt
+config/symbol_addrs.txt
+# Python bytecode
+__pycache__/
+# Extracted game disc (make disc / tools: bsdtar -xf splashdown.bin -C disc)
+/disc
+# splat writes these on every build
+include/include_asm.h
+include/labels.inc

@@ -1,0 +1,5 @@
+-xc++
+-std=c++98
+-Isrc
+-Iinclude
+-fms-extensions
