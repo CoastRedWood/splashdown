@@ -14,6 +14,7 @@
 #define PS2_PTR_SIZE sizeof(void *)
 #define PS2_SIZEOF_PTR(T) 4
 #define PS2_PTR_INT intptr_t
+#define PS2_OVERRUN(n) (n)
 
 #ifdef __cplusplus
 extern "C" {

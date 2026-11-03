@@ -1711,7 +1711,7 @@ void JetskiUIPageCarRacerSelect::SetUpAITeams(int playerCharacter, int playerTea
     int t;
     int allUsed;
     int j;
-    int used[8];
+    int used[8 + PS2_OVERRUN(1)];  // the player may be character 8 (Steve)
     teams = (Team *)LpGame->m_gameOptions->m_career;
     for (t = 0; t < 8; t++)        // t doubles as the clearing counter (register order)
         used[t] = 0;
